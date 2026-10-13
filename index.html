@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kecocokan Pasangan Cinta ❤️</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 25px 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 400px;
+            z-index: 10;
+            text-align: center;
+            backdrop-filter: blur(5px);
+        }
+
+        h1 {
+            color: #d63031;
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            font-size: 0.85rem;
+            color: #636e72;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: #2d3436;
+            margin-bottom: 5px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #dfe6e9;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            border-color: #ff7675;
+            box-shadow: 0 0 5px rgba(255, 118, 117, 0.4);
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .col {
+            flex: 1;
+        }
+
+        button {
+            width: 100%;
+            background: linear-gradient(135deg, #ff7675 0%, #d63031 100%);
+            color: white;
+            border: none;
+            padding: 14px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(214, 48, 49, 0.4);
+            transition: transform 0.1s ease, background 0.3s ease;
+            margin-top: 10px;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        /* Area Hasil */
+        #result-container {
+            margin-top: 20px;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .percentage {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #d63031;
+            margin: 10px 0;
+        }
+
+        .message {
+            font-size: 0.95rem;
+            color: #2d3436;
+            background: #ffeaa7;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 5px solid #fdcb6e;
+            line-height: 1.4;
+        }
+
+        /* Efek Layar Retak (<= 50%) */
+        .crack-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.15) 100%);
+            z-index: 999;
+            display: none;
+        }
+        
+        .crack-line {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.6);
+            height: 2px;
+            transform-origin: left center;
+        }
+
+        /* Efek Hujan Hati (> 50%) */
+        .heart-rain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 999;
+            overflow: hidden;
+            display: none;
+        }
+
+        .falling-heart {
+            position: absolute;
+            top: -10vh;
+            font-size: 24px;
+            animation: fall linear forwards;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-10vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(110vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Efek Visual Overlay -->
+    <div id="crackOverlay" class="crack-overlay"></div>
+    <div id="heartRain" class="heart-rain"></div>
+
+    <div class="container">
+        <h1>💖 Tes Kecocokan Cinta 💖</h1>
+        <p class="subtitle">Seberapa cocok kamu dan dia? Yuk buktikan!</p>
+
+        <form id="loveForm" onsubmit="calculateLove(event)">
+            <div class="row">
+                <div class="input-group col">
+                    <label for="maleName">Nama Pria</label>
+                    <input type="text" id="maleName" placeholder="Cth: Dilan" required>
+                </div>
+                <div class="input-group col">
+                    <label for="femaleName">Nama Wanita</label>
+                    <input type="text" id="femaleName" placeholder="Cth: Milea" required>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="input-group col">
+                    <label for="maleYear">Tahun Lahir Pria</label>
+                    <input type="number" id="maleYear" placeholder="Cth: 2000" min="1950" max="2015" required>
+                </div>
+                <div class="input-group col">
+                    <label for="femaleYear">Tahun Lahir Wanita</label>
+                    <input type="number" id="femaleYear" placeholder="Cth: 2002" min="1950" max="2015" required>
+                </div>
+            </div>
+
+            <button type="submit">Cek Kecocokan Sekarang ✨</button>
+        </form>
+
+        <div id="result-container">
+            <h3>Hasil Kecocokan:</h3>
+            <div class="percentage" id="scoreDisplay">0%</div>
+            <div class="message" id="messageDisplay">Keterangan muncul di sini...</div>
+        </div>
+    </div>
+
+    <script>
+        function calculateLove(e) {
+            e.preventDefault();
+
+            const mName = document.getElementById('maleName').value.trim().toLowerCase();
+            const fName = document.getElementById('femaleName').value.trim().toLowerCase();
+            const mYear = parseInt(document.getElementById('maleYear').value);
+            const fYear = parseInt(document.getElementById('femaleYear').value);
+
+            // Algoritma penentuan persentase unik berdasarkan input nama dan tahun lahir
+            let combinedString = mName + fName + mYear + fYear;
+            let hash = 0;
+            for (let i = 0; i < combinedString.length; i++) {
+                hash = (hash << 5) - hash + combinedString.charCodeAt(i);
+                hash |= 0; 
+            }
+            
+            // Rentang persentase dari 10% sampai 100% (kelipatan 10)
+            let percentages = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+            let index = Math.abs(hash) % percentages.length;
+            let score = percentages[index];
+
+            // Tentukan Keterangan Lucu
+            let message = "";
+            if (score === 10) {
+                message = "10% - Waduh, kamu tidak terlahir untuk dia. Mending cari pelabuhan lain sebelum badai melanda! 🌊";
+            } else if (score === 20) {
+                message = "20% - Kayaknya lebih cocok jadi teman curhat mantan daripada pacar. Rawan friendzone! 🙃";
+            } else if (score === 30) {
+                message = "30% - Sering salah paham mulu. Kalau nikah, tiap hari isinya debat masalah remeh. 🌪️";
+            } else if (score === 40) {
+                message = "40% - Usaha sih ada, tapi jalannya terjal banget kayak naik gunung tanpa alas kaki. 🧗‍♂️";
+            } else if (score === 50) {
+                message = "50% - Pas-pasan banget! Bisa jadi langgeng kalau salah satu mau ngalah terus (sabar ya). ⚖️";
+            } else if (score === 60) {
+                message = "60% - Mulai ada benih-benih cinta nih, tinggal dipupuk pakai traktiran es krim tiap akhir pekan. 🍦";
+            } else if (score === 70) {
+                message = "70% - Udah cocok banget! Tinggal siapin mental buat ditanya 'Kapan nyusul pelaminan?' sama tetangga. 🤭";
+            } else if (score === 80) {
+                message = "80% - Sebagian hatinya adalah kamu, sebagian lagi cicilan motor. Tapi tenang, cintanya tulus kok! 💕";
+            } else if (score === 90) {
+                message = "90% - Bucin level akut! Dunia rasanya milik berdua, yang lain cuma ngontrak di bumi. 🌍🔥";
+            } else {
+                message = "100% - Sempurna! Jodoh dunia akhirat, bahkan tuyul pun gak berani ganggu hubungan kalian! 💍✨";
+            }
+
+            // Tampilkan Hasil
+            document.getElementById('result-container').style.display = 'block';
+            document.getElementById('scoreDisplay').innerText = score + "%";
+            document.getElementById('messageDisplay').innerText = message;
+
+            // Jalankan Efek Visual Berdasarkan Skor
+            if (score <= 50) {
+                triggerCrackEffect();
+            } else {
+                triggerHeartRain();
+            }
+        }
+
+        // Efek Layar Retak
+        function triggerCrackEffect() {
+            const crackOverlay = document.getElementById('crackOverlay');
+            const heartRain = document.getElementById('heartRain');
+            heartRain.style.display = 'none';
+            crackOverlay.innerHTML = '';
+            crackOverlay.style.display = 'block';
+
+            // Buat beberapa garis retakan acak
+            for (let i = 0; i < 6; i++) {
+                let line = document.createElement('div');
+                line.className = 'crack-line';
+                line.style.top = Math.random() * 100 + 'vh';
+                line.style.left = Math.random() * 100 + 'vw';
+                line.style.width = (Math.random() * 150 + 100) + 'px';
+                line.style.transform = `rotate(${Math.random() * 360}deg)`;
+                crackOverlay.appendChild(line);
+            }
+
+            setTimeout(() => {
+                crackOverlay.style.display = 'none';
+            }, 3000);
+        }
+
+        // Efek Hujan Hati Pink & Merah
+        function triggerHeartRain() {
+            const crackOverlay = document.getElementById('crackOverlay');
+            const heartRain = document.getElementById('heartRain');
+            crackOverlay.style.display = 'none';
+            heartRain.innerHTML = '';
+            heartRain.style.display = 'block';
+
+            const colors = ['#ff4757', '#ff6b81', '#ff7675', '#e84393', '#fd79a8'];
+
+            for (let i = 0; i < 35; i++) {
+                let heart = document.createElement('div');
+                heart.className = 'falling-heart';
+                heart.innerHTML = '❤️';
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
+                heart.style.animationDelay = (Math.random() * 1.5) + 's';
+                heart.style.fontSize = (Math.random() * 20 + 15) + 'px';
+                heartRain.appendChild(heart);
+            }
+
+            setTimeout(() => {
+                heartRain.style.display = 'none';
+            }, 4000);
+        }
+    </script>
+</body>
+</html>
